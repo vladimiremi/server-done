@@ -23,4 +23,4 @@ select agricultor.id, agricultor.nickname, produto.type, agricultor_produtos.qua
 on agricultor.id = agricultor_produtos.agricultor_id
 join produto
 on produto.id = agricultor_produtos.produto_id
-where agricultor.nickname = 'Valdeci';
+where agricultor.nickname = 'Mimi';

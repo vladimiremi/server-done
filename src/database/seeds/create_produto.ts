@@ -15,7 +15,7 @@ export async function seed(knex:Knex){
         {type: "Lijeiro"},
         {type: "Baije Rocha"},
         {type: "Cotó"},
-        {type: "Casca Rocha"}
+        {type: "Casca Rocha"},
         {type: "Canapu"}
 
     ])
