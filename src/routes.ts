@@ -89,13 +89,12 @@ routes.get('/', async (request, response)=>{
         'produto.type', 
         'agricultor_produtos.quantity', 
 
-        'agricultor.id', 
         'agricultor.name', 
         'agricultor.nickname',
+        'agricultor.whatsapp',
 
         'agricultor_produtos.id'
     ); 
-
     // knex('agricultor')
     // .join('agricultor_produtos', 'agricultor.id', 'agricultor_produtos.agricultor_id')
     // .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
@@ -110,7 +109,17 @@ routes.get('/user', async (request, response)=>{
 
     const agricultor_id = request.headers.authorization;
     console.log(agricultor_id);
-    const salesUser = await knex('agricultor').join('agricultor_produtos', 'agricultor.id', 'agricultor_produtos.agricultor_id').join('produto', 'produto.id', 'agricultor_produtos.produto_id').select('agricultor.id', 'agricultor_produtos.register_date', 'agricultor.nickname', 'agricultor_produtos.produto_id', 'produto.type', 'agricultor_produtos.quantity', 'agricultor_produtos.id').where('agricultor.id', agricultor_id);
+    const salesUser = await knex('agricultor')
+        .join('agricultor_produtos', 'agricultor.id', 'agricultor_produtos.agricultor_id')
+        .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
+        .select('agricultor.id', 'agricultor_produtos.register_date', 'agricultor.nickname', 
+            'agricultor_produtos.produto_id', 'produto.type', 'agricultor_produtos.quantity', 
+            knex.raw('SUM(agricultor_produtos.quantity)'), 
+            knex.raw('COUNT(agricultor_produtos.quantity)'), 'agricultor_produtos.id')
+        .where('agricultor.id', agricultor_id)
+        .groupByRaw('produto.type')
+        .orderBy('agricultor_produtos.register_date');
+
     
     return response.json({salesUser});
 
