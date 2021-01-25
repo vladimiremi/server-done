@@ -114,10 +114,11 @@ routes.get('/user', async (request, response)=>{
         .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
         .select('agricultor.id', 'agricultor_produtos.register_date', 'agricultor.nickname', 
             'agricultor_produtos.produto_id', 'produto.type', 'agricultor_produtos.quantity', 
-            knex.raw('SUM(agricultor_produtos.quantity)'), 
-            knex.raw('COUNT(agricultor_produtos.quantity)'), 'agricultor_produtos.id')
+            // knex.raw('SUM(agricultor_produtos.quantity)'), 
+            // knex.raw('COUNT(agricultor_produtos.quantity)'), 
+            'agricultor_produtos.id')
         .where('agricultor.id', agricultor_id)
-        .groupByRaw('produto.type')
+        // .groupByRaw('produto.type')
         .orderBy('agricultor_produtos.register_date');
 
     
@@ -152,7 +153,9 @@ routes.delete('/user/:id', async (request, response)=>{
         return response.status(401).json({error: 'Operação não permitida.'});
     }
     //retorna o id do anúncio que vai ser deletado
-    await knex('agricultor_produtos').where('id', id).delete();
+    await knex('agricultor_produtos')
+        .where('id', id)
+        .delete();
  
     return response.status(204).send('Deletado com sucesso!');
 
