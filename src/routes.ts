@@ -79,28 +79,28 @@ routes.get('/', async (request, response)=>{
     response.header('X-Total-Count', String(count['count(*)']));//... no cabeçalho da resposta da nossa requisição
 
     const sale = await knex('agricultor_produtos')
-    .join('agricultor', 'agricultor.id', 'agricultor_produtos.agricultor_id')
-    .join('produto', 'produto.id', 'agricultor_produtos.produto_id') //sistema de paginação
-    .limit(5).offset((Number(page) - 1) * 5)
-    .select(
-        'agricultor_produtos.*',
-        'agricultor_produtos.register_date',
-        'agricultor_produtos.produto_id', 
-        'produto.type', 
-        'agricultor_produtos.quantity', 
+        .join('agricultor', 'agricultor.id', 'agricultor_produtos.agricultor_id')
+        .join('produto', 'produto.id', 'agricultor_produtos.produto_id') //sistema de paginação
+        .limit(5).offset((Number(page) - 1) * 5)
+        .select(
+            'agricultor_produtos.*',
+            'agricultor_produtos.register_date',
+            'agricultor_produtos.produto_id', 
+            'produto.type', 
+            'agricultor_produtos.quantity', 
 
-        'agricultor.name', 
-        'agricultor.nickname',
-        'agricultor.whatsapp',
+            'agricultor.name', 
+            'agricultor.nickname',
+            'agricultor.whatsapp',
+            'agricultor.locality',
 
-        'agricultor_produtos.id'
-    ); 
-    // knex('agricultor')
-    // .join('agricultor_produtos', 'agricultor.id', 'agricultor_produtos.agricultor_id')
-    // .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
-    // .select('agricultor.id', 'agricultor_produtos.register_date', 'agricultor.nickname', 'agricultor_produtos.produto_id', 'produto.type', 'agricultor_produtos.quantity', 'agricultor_produtos.id')
-    // .where('agricultor.id', agricultor_id);
-
+            'agricultor_produtos.id',
+            knex.raw('SUM(agricultor_produtos.quantity)'), 
+            knex.raw('COUNT(agricultor_produtos.quantity)')
+        )
+        .groupByRaw('produto.type') //Agrupa por tipo
+        .groupByRaw('agricultor.id'); // e agrupa por produtor
+ 
     return response.json({sale});
 })
 
@@ -109,16 +109,13 @@ routes.get('/user', async (request, response)=>{
 
     const agricultor_id = request.headers.authorization;
     console.log(agricultor_id);
-    const salesUser = await knex('agricultor')
+    const salesUser = await knex('agricultor') 
         .join('agricultor_produtos', 'agricultor.id', 'agricultor_produtos.agricultor_id')
         .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
         .select('agricultor.id', 'agricultor_produtos.register_date', 'agricultor.nickname', 
             'agricultor_produtos.produto_id', 'produto.type', 'agricultor_produtos.quantity', 
-            // knex.raw('SUM(agricultor_produtos.quantity)'), 
-            // knex.raw('COUNT(agricultor_produtos.quantity)'), 
             'agricultor_produtos.id')
         .where('agricultor.id', agricultor_id)
-        // .groupByRaw('produto.type')
         .orderBy('agricultor_produtos.register_date');
 
     
