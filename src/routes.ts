@@ -72,16 +72,18 @@ routes.post('/sale', async (request, response)=>{
 routes.get('/', async (request, response)=>{
     const { page = 1 } = request.query; //pega minhas query ...3333?page=2
 
-    const [count] = await knex('agricultor_produtos').count(); //retorna o total de anúncios...
-    
-    
+    const count = await knex('agricultor_produtos')
+    .groupByRaw('agricultor_id') //Agrupa por tipo
+    .groupByRaw('produto_id') // e agrupa por produtor
+    .count('id'); //retorna o total de anúncios...
+    console.log(count.length);
 
-    response.header('X-Total-Count', String(count['count(*)']));//... no cabeçalho da resposta da nossa requisição
+    response.header('Access-Control-Allow-Origin', '*');
+    response.header('x-total-count', String(count.length));//... no cabeçalho da resposta da nossa requisição
 
     const sale = await knex('agricultor_produtos')
         .join('agricultor', 'agricultor.id', 'agricultor_produtos.agricultor_id')
-        .join('produto', 'produto.id', 'agricultor_produtos.produto_id') //sistema de paginação
-        .limit(5).offset((Number(page) - 1) * 5)
+        .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
         .select(
             'agricultor_produtos.*',
             'agricultor_produtos.register_date',
@@ -100,7 +102,8 @@ routes.get('/', async (request, response)=>{
         )
         .groupByRaw('produto.type') //Agrupa por tipo
         .groupByRaw('agricultor.id'); // e agrupa por produtor
- 
+    
+        
     return response.json({sale});
 })
 
