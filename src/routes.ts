@@ -100,6 +100,7 @@ routes.get('/', async (request, response)=>{
             knex.raw('SUM(agricultor_produtos.quantity)'), 
             knex.raw('COUNT(agricultor_produtos.quantity)')
         )
+        .where('status', false)
         .groupByRaw('produto.type') //Agrupa por tipo
         .groupByRaw('agricultor.id'); // e agrupa por produtor
     
@@ -118,6 +119,7 @@ routes.get('/user', async (request, response)=>{
         .select('agricultor.id', 'agricultor_produtos.register_date', 'agricultor.nickname', 
             'agricultor_produtos.produto_id', 'produto.type', 'agricultor_produtos.quantity', 
             'agricultor_produtos.id')
+        .where('status', false)
         .where('agricultor.id', agricultor_id)
         .orderBy('agricultor_produtos.register_date');
 
@@ -159,6 +161,26 @@ routes.delete('/user/:id', async (request, response)=>{
  
     return response.status(204).send('Deletado com sucesso!');
 
+})
+
+//status de vendido
+routes.put('/user/:id', async (request, response)=>{
+    const { id } = request.params;
+    const {status} = request.body;
+    const agricultor_id = request.headers.authorization;
+    console.log(`Status: ${status}`);
+    //retorna o id do agricultor
+    const sale = await knex('agricultor_produtos').where('id', id).select('agricultor_id').first();
+    //verificar se é o agricultor que está mesmo alterando o status do anúncio
+    if( sale.agricultor_id !== agricultor_id ) {
+        return response.status(401).json({error: 'Operação não permitida.'});
+    }
+    //retorna o id do anúncio que vai ser alterado para vendido
+    await knex('agricultor_produtos')
+        .where('id', id)
+        .update('status', status);
+ 
+    return response.status(204).send('Deletado com sucesso!');
 })
 
 export default routes;
