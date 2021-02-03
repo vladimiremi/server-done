@@ -54,7 +54,7 @@ routes.post('/produto', async (request, response)=>{
 });
 
 /*Cadastrar anúncio */
-routes.post('/sale', async (request, response)=>{
+routes.post('/newadvertisement', async (request, response)=>{
     const {quantity, produto_id} = request.body;
     const agricultor_id = request.headers.authorization;
 
@@ -129,7 +129,7 @@ routes.get('/user', async (request, response)=>{
 })
 
 /*Lista produtos */
-routes.get('/produtos', async (request, response)=>{
+routes.get('/newadvertisement', async (request, response)=>{
     const produtos = await knex('produto').select('*');
 
     return response.json({produtos});
