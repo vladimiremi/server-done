@@ -104,7 +104,6 @@ routes.get('/', async (request, response)=>{
         .groupByRaw('produto.type') //Agrupa por tipo
         .groupByRaw('agricultor.id'); // e agrupa por produtor
     
-        
     return response.json({sale});
 })
 
@@ -127,6 +126,38 @@ routes.get('/user', async (request, response)=>{
     return response.json({salesUser});
 
 })
+/*Listar anúcios VENDIDOS de um agricultor específico */
+routes.get('/sold', async (request, response)=>{
+
+    const agricultor_id = request.headers.authorization;
+    console.log(agricultor_id);
+    const soldUser = await knex('agricultor') 
+        .join('agricultor_produtos', 'agricultor.id', 'agricultor_produtos.agricultor_id')
+        .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
+        .select('agricultor.id', 
+            'agricultor_produtos.register_date', 
+            'agricultor.nickname', 
+            'agricultor_produtos.produto_id', 
+            'produto.type', 
+            'agricultor_produtos.quantity', 
+            'agricultor_produtos.id'
+            
+            )
+        .where('status', true)
+        .where('agricultor.id', agricultor_id)
+        .orderBy('agricultor_produtos.register_date');
+
+        const [totalQuantity] = await knex('agricultor_produtos')
+        .join('agricultor', 'agricultor.id', 'agricultor_produtos.agricultor_id')
+        .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
+        .select( knex.raw('SUM(agricultor_produtos.quantity)'))
+        .where('status', true)
+        .where('agricultor.id', agricultor_id);
+
+        // response.header('x-total-quantity', totalQuantity['SUM(agricultor_produtos.quantity)']);
+    return response.json({soldUser, totalQuantity});
+
+})
 
 /*Lista produtos */
 routes.get('/newadvertisement', async (request, response)=>{
@@ -145,6 +176,25 @@ routes.get('/listar', async (request, response)=>{
 
 /*Deletar anúncio */
 routes.delete('/user/:id', async (request, response)=>{
+    const { id } = request.params;
+    const agricultor_id = request.headers.authorization;
+
+    //retorna o id do agricultor
+    const sale = await knex('agricultor_produtos').where('id', id).select('agricultor_id').first();
+    //verificar se é o agricultor que está mesmo deletando
+    if( sale.agricultor_id !== agricultor_id ) {
+        return response.status(401).json({error: 'Operação não permitida.'});
+    }
+    //retorna o id do anúncio que vai ser deletado
+    await knex('agricultor_produtos')
+        .where('id', id)
+        .delete();
+ 
+    return response.status(204).send('Deletado com sucesso!');
+
+})
+/*Deletar anúncio VENDIDOS*/
+routes.delete('/sold/:id', async (request, response)=>{
     const { id } = request.params;
     const agricultor_id = request.headers.authorization;
 
