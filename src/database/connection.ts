@@ -2,10 +2,13 @@ import knex from 'knex';
 import path from 'path'; //une caminhos, padroniza o acesso ao caminho
 
 const conection = knex({ 
-    client: 'sqlite3',
+    client: 'mysql',
     connection: {
-        filename: path.resolve(__dirname, 'database.sqlite'),
-    },
+        host : '127.0.0.1',
+        user : 'root',
+        password : '',
+        database : 'dbdone'
+      },
     useNullAsDefault: true,
 });
 

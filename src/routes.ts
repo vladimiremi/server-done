@@ -85,7 +85,6 @@ routes.get('/', async (request, response)=>{
         .join('agricultor', 'agricultor.id', 'agricultor_produtos.agricultor_id')
         .join('produto', 'produto.id', 'agricultor_produtos.produto_id')
         .select(
-            'agricultor_produtos.*',
             'agricultor_produtos.register_date',
             'agricultor_produtos.produto_id', 
             'produto.type', 
