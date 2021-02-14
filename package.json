@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "ts-node-dev --ignore-watch node_modules  src/server.ts",
+    "production:start": "node src/server.ts",
     "knex:seed": "knex --knexfile knexfile.ts seed:run",
     "knex:migrate": "knex migrate:latest --knexfile knexfile.ts migrate:latest"
   },
@@ -16,6 +17,7 @@
     "express": "^4.17.1",
     "knex": "^0.21.14",
     "mysql": "^2.18.1",
+    "pg": "^8.5.1",
     "sqlite3": "^5.0.0"
   },
   "devDependencies": {
