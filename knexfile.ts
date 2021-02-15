@@ -1,11 +1,12 @@
 import path from 'path';
 
-const url = 'postgres://ebdfwpqtnpjxvv:8b1eae3bd031a2ba5a7b9c92a02ba368bf33c574049770ec2c8afb358f246748@ec2-50-19-171-158.compute-1.amazonaws.com:5432/dac6n8r4ruff9i';
 module.exports = {
-    client: 'pg',
+    client: 'mysql',
     connection: {
-        connectionString: url,
-        ssl: { rejectUnauthorized: false },
+        host : 'us-cdbr-east-03.cleardb.com',
+        user : 'b948f608396fb1',
+        password : '323ff37c',
+        database : 'heroku_6740fa6777684a5'
       },
     migrations: {
 
@@ -14,5 +15,6 @@ module.exports = {
     seeds: {
         directory: path.resolve(__dirname, 'src', 'database', 'seeds')
     },
+    searchPath: ['knex', 'public'],
     useNullAsDefault: true,
 }
